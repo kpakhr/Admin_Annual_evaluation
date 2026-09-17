@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Annual Evaluation Performance Evaluation - Admin</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --purple:#673ab7;
+    --purple-dark:#512da8;
+    --gray-bg:#f0ebf8;
+    --line:#e0e0e0;
+    --text:#202124;
+    --sub:#5f6368;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Segoe UI', Roboto, Arial, sans-serif;
+    background:var(--gray-bg);
+    color:var(--text);
+    padding-bottom:60px;
+  }
+  .topbar{
+    height:10px;
+    background:var(--purple);
+  }
+  .container{
+    max-width:760px;
+    margin:0 auto;
+    padding:24px 16px;
+  }
+  .card{
+    background:#fff;
+    border-radius:8px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.1);
+    padding:24px 28px;
+    margin-bottom:16px;
+  }
+  .header-card{
+    border-top:10px solid var(--purple);
+  }
+  h1{
+    font-size:22px;
+    margin:0 0 4px 0;
+    color:var(--text);
+  }
+  .company{
+    font-size:14px;
+    color:var(--sub);
+    margin-bottom:16px;
+  }
+  .req-note{
+    font-size:13px;
+    color:#d93025;
+    margin-top:8px;
+  }
+  .rating-def{
+    font-size:13px;
+    line-height:1.6;
+    color:var(--text);
+  }
+  .rating-def b{color:var(--purple-dark);}
+  .instructions{
+    font-size:13px;
+    color:var(--sub);
+    font-style:italic;
+    margin-top:10px;
+  }
+  label.field-label{
+    display:block;
+    font-size:15px;
+    margin-bottom:8px;
+    font-weight:500;
+  }
+  .required-star{color:#d93025;}
+  input[type=text], input[type=date], select, textarea{
+    width:100%;
+    padding:8px 4px;
+    font-size:14px;
+    border:none;
+    border-bottom:1px solid var(--line);
+    background:transparent;
+    font-family:inherit;
+    color:var(--text);
+  }
+  input[readonly]{
+    color:var(--purple-dark);
+    font-weight:600;
+    background:#faf8fd;
+    padding:8px;
+    border-radius:4px;
+    border-bottom:1px solid var(--purple);
+  }
+  input:focus, select:focus, textarea:focus{
+    outline:none;
+    border-bottom:2px solid var(--purple);
+  }
+  textarea{
+    resize:vertical;
+    min-height:50px;
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:8px;
+  }
+  .field-block{
+    margin-bottom:22px;
+  }
+  .lookup-status{
+    font-size:12.5px;
+    margin-top:6px;
+  }
+  .lookup-ok{color:#188038;}
+  .lookup-err{color:#d93025;}
+  .section-title{
+    font-size:17px;
+    font-weight:700;
+    color:var(--purple-dark);
+    margin:0 0 4px 0;
+  }
+  .q-title{
+    font-size:15px;
+    font-weight:700;
+    margin-bottom:6px;
+  }
+  .q-desc{
+    font-size:13.5px;
+    color:var(--sub);
+    line-height:1.5;
+    margin-bottom:14px;
+  }
+  .scale-row{
+    display:flex;
+    justify-content:space-between;
+    max-width:420px;
+    margin:10px 0 4px 0;
+  }
+  .scale-opt{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    font-size:13px;
+    gap:6px;
+  }
+  .scale-opt input{
+    width:20px;height:20px;accent-color:var(--purple);
+  }
+  .scale-caption{
+    display:flex;
+    justify-content:space-between;
+    max-width:420px;
+    font-size:11px;
+    color:var(--sub);
+    margin-bottom:16px;
+  }
+  .comments-label{
+    font-size:13px;
+    color:var(--sub);
+    margin-bottom:6px;
+    display:block;
+  }
+  hr.sep{
+    border:none;border-top:1px solid var(--line);margin:20px 0;
+  }
+  button{
+    font-family:inherit;
+    cursor:pointer;
+  }
+  .submit-btn{
+    background:var(--purple);
+    color:#fff;
+    border:none;
+    padding:10px 26px;
+    border-radius:4px;
+    font-size:14px;
+    font-weight:600;
+  }
+  .submit-btn:hover{background:var(--purple-dark);}
+  .clear-btn{
+    background:none;
+    border:none;
+    color:var(--purple-dark);
+    font-size:14px;
+    margin-left:12px;
+  }
+  .top-actions{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    max-width:760px;
+    margin:0 auto 8px auto;
+    padding:0 16px;
+  }
+  .link-btn{
+    background:none;
+    border:1px solid var(--purple);
+    color:var(--purple-dark);
+    padding:6px 14px;
+    border-radius:4px;
+    font-size:13px;
+  }
+  .link-btn:hover{background:var(--gray-bg);}
+  .msg-banner{
+    max-width:760px;
+    margin:12px auto;
+    padding:12px 16px;
+    border-radius:6px;
+    font-size:14px;
+    display:none;
+  }
+  .msg-ok{background:#e6f4ea;color:#188038;border:1px solid #188038;}
+  .msg-err{background:#fce8e6;color:#c5221f;border:1px solid #c5221f;}
+  table.records{
+    width:100%;
+    border-collapse:collapse;
+    font-size:12.5px;
+    margin-top:12px;
+  }
+  table.records th, table.records td{
+    border:1px solid var(--line);
+    padding:6px 8px;
+    text-align:left;
+  }
+  table.records th{background:var(--gray-bg);}
+  .small-note{font-size:12px;color:var(--sub);}
+  .modal-overlay{
+    display:none;
+    position:fixed;top:0;left:0;right:0;bottom:0;
+    background:rgba(0,0,0,0.4);
+    z-index:50;
+    align-items:flex-start;
+    justify-content:center;
+    overflow-y:auto;
+    padding:40px 12px;
+  }
+  .modal-box{
+    background:#fff;
+    border-radius:8px;
+    max-width:900px;
+    width:100%;
+    padding:20px;
+  }
+  .modal-close{
+    float:right;
+    background:none;border:none;font-size:20px;color:var(--sub);
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar"></div>
+<div class="top-actions">
+  <span class="small-note">Production · Annual Evaluation</span>
+  <button class="link-btn" id="viewRecordsBtn">View Saved Evaluations</button>
+</div>
+
+<div class="container">
+
+  <div id="msgBanner" class="msg-banner"></div>
+
+  <iframe name="hiddenSubmitFrame" style="display:none;"></iframe>
+  <form id="evalForm">
+
+    <!-- HEADER -->
+    <div class="card header-card">
+      <h1>Annual Evaluation Performance Evaluation - Admin</h1>
+      <div class="company">Kuwait Packing Materials Manufacturing Company (K-PAK)</div>
+      <div class="rating-def">
+        <b>DEFINITION OF RATINGS</b><br>
+        <b>(5) EXCEPTIONAL:</b> Consistently exceeds all relevant performance standards.<br>
+        <b>(4) EXCEEDS EXPECTATIONS:</b> Consistently meets and often exceeds all relevant performance standards.<br>
+        <b>(3) MEETS EXPECTATIONS:</b> Meets all relevant performance standards.<br>
+        <b>(2) BELOW EXPECTATIONS:</b> Sometimes meets the performance standards.<br>
+        <b>(1) NEEDS IMPROVEMENT:</b> Consistently falls short of performance standards.
+      </div>
+      <div class="instructions">
+        Describe the employee's contributions in each of the performance categories below.
+        It is COMPULSORY that you illustrate specific, detailed examples. Ratings MUST be
+        supported and substantiated by narrative comments.
+      </div>
+    </div>
+
+    <!-- EMPLOYEE INFO -->
+    <div class="card">
+      <div class="field-block">
+        <label class="field-label">Department <span class="required-star">*</span></label>
+        <select id="deptGroup" required>
+          <option value="">-- Select department --</option>
+        </select>
+      </div>
+
+      <div class="field-block">
+        <label class="field-label">Employee Name <span class="required-star">*</span></label>
+        <select id="empCode" required disabled>
+          <option value="">-- Select department first --</option>
+        </select>
+        <div id="lookupStatus" class="lookup-status"></div>
+      </div>
+
+      <div class="field-block">
+        <label class="field-label">Employee Number</label>
+        <input type="text" id="empCodeDisplay" readonly>
+      </div>
+
+      <div class="field-block">
+        <label class="field-label">Employee Name <span class="required-star">*</span></label>
+        <input type="text" id="empName" readonly required>
+      </div>
+
+      <div class="field-block">
+        <label class="field-label">Department <span class="required-star">*</span></label>
+        <input type="text" id="empDept" readonly required>
+      </div>
+
+      <div class="field-block">
+        <label class="field-label">Section <span class="required-star">*</span></label>
+        <input type="text" id="empSection" readonly required>
+      </div>
+
+      <div class="field-block">
+        <label class="field-label">Position Title <span class="required-star">*</span></label>
+        <input type="text" id="empPosition" readonly required>
+      </div>
+
+      <div class="field-block">
+        <label class="field-label">Date of Joining <span class="required-star">*</span></label>
+        <input type="text" id="empJoinDate" readonly required>
+      </div>
+    </div>
+
+    <!-- I. TECHNICAL / JOB KNOWLEDGE -->
+    <div class="card">
+      <div class="section-title">I. TECHNICAL / JOB KNOWLEDGE</div>
+      <div class="small-note" style="margin-bottom:14px;">Competency</div>
+
+      <div class="q-block">
+        <div class="q-title">I.1 Job Knowledge <span class="required-star">*</span></div>
+        <div class="q-desc">
+          Possesses skills and knowledge to perform the job competently. Has used his technical
+          knowledge to generate improvements in processes, procedures, and operations.
+        </div>
+        <div class="scale-row">
+          <label class="scale-opt"><input type="radio" name="q1" value="1" required>1</label>
+          <label class="scale-opt"><input type="radio" name="q1" value="2">2</label>
+          <label class="scale-opt"><input type="radio" name="q1" value="3">3</label>
+          <label class="scale-opt"><input type="radio" name="q1" value="4">4</label>
+          <label class="scale-opt"><input type="radio" name="q1" value="5">5</label>
+        </div>
+        <label class="comments-label">Comments:</label>
+        <textarea id="q1_comments" placeholder="Specific, detailed examples..."></textarea>
+      </div>
+      <hr class="sep">
+
+      <div class="q-block">
+        <div class="q-title">I.2 Job Performance and Quality of Work <span class="required-star">*</span></div>
+        <div class="q-desc">
+          Completes and performs all the requirements of his job. Handles every technical challenge
+          skillfully, thoroughly, and effectively. Provides high-quality work and thoroughly follows
+          standards and procedures. Keeps complete records.
+        </div>
+        <div class="scale-row">
+          <label class="scale-opt"><input type="radio" name="q2" value="1" required>1</label>
+          <label class="scale-opt"><input type="radio" name="q2" value="2">2</label>
+          <label class="scale-opt"><input type="radio" name="q2" value="3">3</label>
+          <label class="scale-opt"><input type="radio" name="q2" value="4">4</label>
+          <label class="scale-opt"><input type="radio" name="q2" value="5">5</label>
+        </div>
+        <label class="comments-label">Comments:</label>
+        <textarea id="q2_comments" placeholder="Specific, detailed examples..."></textarea>
+      </div>
+      <hr class="sep">
+
+      <div class="q-block">
+        <div class="q-title">I.3 Productivity <span class="required-star">*</span></div>
+        <div class="q-desc">
+          Producing required output on time; Was able to meet deadlines for his/her job.
+        </div>
+        <div class="scale-row">
+          <label class="scale-opt"><input type="radio" name="q3" value="1" required>1</label>
+          <label class="scale-opt"><input type="radio" name="q3" value="2">2</label>
+          <label class="scale-opt"><input type="radio" name="q3" value="3">3</label>
+          <label class="scale-opt"><input type="radio" name="q3" value="4">4</label>
+          <label class="scale-opt"><input type="radio" name="q3" value="5">5</label>
+        </div>
+        <label class="comments-label">Comments:</label>
+        <textarea id="q3_comments" placeholder="Specific, detailed examples..."></textarea>
+      </div>
+      <hr class="sep">
+
+      <div class="q-block">
+        <div class="q-title">I.4 Ability to Follow Instruction/Direction of Superior <span class="required-star">*</span></div>
+        <div class="q-desc">
+          Knows, understand and follow what is being instructed by immediate superior.
+        </div>
+        <div class="scale-row">
+          <label class="scale-opt"><input type="radio" name="q4" value="1" required>1</label>
+          <label class="scale-opt"><input type="radio" name="q4" value="2">2</label>
+          <label class="scale-opt"><input type="radio" name="q4" value="3">3</label>
+          <label class="scale-opt"><input type="radio" name="q4" value="4">4</label>
+          <label class="scale-opt"><input type="radio" name="q4" value="5">5</label>
+        </div>
+        <label class="comments-label">Comments:</label>
+        <textarea id="q4_comments" placeholder="Specific, detailed examples..."></textarea>
+      </div>
+    </div>
+
+    <!-- II. BEHAVIORAL ATTRIBUTES -->
+    <div class="card">
+      <div class="section-title">II. BEHAVIORAL ATTRIBUTES</div>
+      <div class="small-note" style="margin-bottom:14px;">Competency</div>
+
+      <div class="q-block">
+        <div class="q-title">II.1 Cost Consciousness <span class="required-star">*</span></div>
+        <div class="q-desc">
+          Maximizing the use of office resources and saving the company from unnecessary cost
+          imperative. Has applied his/her expertise to save the company a substantial amount of money.
+        </div>
+        <div class="scale-row">
+          <label class="scale-opt"><input type="radio" name="q5" value="1" required>1</label>
+          <label class="scale-opt"><input type="radio" name="q5" value="2">2</label>
+          <label class="scale-opt"><input type="radio" name="q5" value="3">3</label>
+          <label class="scale-opt"><input type="radio" name="q5" value="4">4</label>
+          <label class="scale-opt"><input type="radio" name="q5" value="5">5</label>
+        </div>
+        <label class="comments-label">Comments:</label>
+        <textarea id="q5_comments" placeholder="Specific, detailed examples..."></textarea>
+      </div>
+      <hr class="sep">
+
+      <div class="q-block">
+        <div class="q-title">II.2 Communication and Customer Focus (Sales, HR, Procurement) <span class="required-star">*</span></div>
+        <div class="q-desc">
+          Organizes and expresses ideas and information clearly and is capable of conveying ideas and
+          information to others. Consistently fully meets the needs of internal and external customers.
+        </div>
+        <div class="scale-row">
+          <label class="scale-opt"><input type="radio" name="q6" value="1" required>1</label>
+          <label class="scale-opt"><input type="radio" name="q6" value="2">2</label>
+          <label class="scale-opt"><input type="radio" name="q6" value="3">3</label>
+          <label class="scale-opt"><input type="radio" name="q6" value="4">4</label>
+          <label class="scale-opt"><input type="radio" name="q6" value="5">5</label>
+        </div>
+        <label class="comments-label">Comments:</label>
+        <textarea id="q6_comments" placeholder="Specific, detailed examples..."></textarea>
+      </div>
+      <hr class="sep">
+
+      <div class="q-block">
+        <div class="q-title">II.3 Teamwork, Conflict Resolution &amp; Attitude towards Colleagues <span class="required-star">*</span></div>
+        <div class="q-desc">
+          Demonstrates ability to get along with others, is respectful of co-workers, communicates
+          and acts as a team player, promotes teamwork, responds and acts appropriately to
+          confrontational situations.
+        </div>
+        <div class="scale-row">
+          <label class="scale-opt"><input type="radio" name="q7" value="1" required>1</label>
+          <label class="scale-opt"><input type="radio" name="q7" value="2">2</label>
+          <label class="scale-opt"><input type="radio" name="q7" value="3">3</label>
+          <label class="scale-opt"><input type="radio" name="q7" value="4">4</label>
+          <label class="scale-opt"><input type="radio" name="q7" value="5">5</label>
+        </div>
+        <label class="comments-label">Comments:</label>
+        <textarea id="q7_comments" placeholder="Specific, detailed examples..."></textarea>
+      </div>
+      <hr class="sep">
+
+      <div class="q-block">
+        <div class="q-title">II.4 Flexibility and Works Under Pressure <span class="required-star">*</span></div>
+        <div class="q-desc">
+          Demonstrates adaptability and flexibility with changes in jobs and duties. Adapts quickly to
+          change and easily considers new approaches. Thinks and acts effectively under pressure.
+          Overcomes obstacles to achieve results. Willingness to accept additional tasks not part of
+          his/her regular duties.
+        </div>
+        <div class="scale-row">
+          <label class="scale-opt"><input type="radio" name="q8" value="1" required>1</label>
+          <label class="scale-opt"><input type="radio" name="q8" value="2">2</label>
+          <label class="scale-opt"><input type="radio" name="q8" value="3">3</label>
+          <label class="scale-opt"><input type="radio" name="q8" value="4">4</label>
+          <label class="scale-opt"><input type="radio" name="q8" value="5">5</label>
+        </div>
+        <label class="comments-label">Comments:</label>
+        <textarea id="q8_comments" placeholder="Specific, detailed examples..."></textarea>
+      </div>
+      <hr class="sep">
+
+      <div class="q-block">
+        <div class="q-title">II.5 Initiative &amp; Motivation <span class="required-star">*</span></div>
+        <div class="q-desc">
+          Strives to learn and improve. Seeks out ways to better himself/herself and the company.
+          Takes on responsibilities. Does not remain idle. Is hard working and self-motivated. Has a
+          drive within him/herself to do a better job, be a better employee and seeks opportunities to
+          improve or learn more.
+        </div>
+        <div class="scale-row">
+          <label class="scale-opt"><input type="radio" name="q9" value="1" required>1</label>
+          <label class="scale-opt"><input type="radio" name="q9" value="2">2</label>
+          <label class="scale-opt"><input type="radio" name="q9" value="3">3</label>
+          <label class="scale-opt"><input type="radio" name="q9" value="4">4</label>
+          <label class="scale-opt"><input type="radio" name="q9" value="5">5</label>
+        </div>
+        <label class="comments-label">Comments:</label>
+        <textarea id="q9_comments" placeholder="Specific, detailed examples..."></textarea>
+      </div>
+    </div>
+
+    <!-- OTHER -->
+    <div class="card">
+      <div class="field-block">
+        <label class="field-label">Other comments</label>
+        <textarea id="otherComments"></textarea>
+      </div>
+      <div class="field-block">
+        <label class="field-label">Evaluated by <span class="required-star">*</span></label>
+        <input type="text" id="evaluatedBy" required>
+      </div>
+      <div class="field-block">
+        <label class="field-label">Evaluation Date <span class="required-star">*</span></label>
+        <input type="date" id="evalDate" required>
+      </div>
+    </div>
+
+    <div class="card" style="display:flex;align-items:center;">
+      <button type="submit" class="submit-btn">Submit</button>
+      <button type="reset" class="clear-btn">Clear form</button>
+    </div>
+
+  </form>
+</div>
+
+<!-- RECORDS MODAL -->
+<div class="modal-overlay" id="recordsModal">
+  <div class="modal-box">
+    <button class="modal-close" id="closeModalBtn">&times;</button>
+    <h2 style="margin-top:0;">Saved Evaluations</h2>
+    <p class="small-note">These evaluations are saved to shared storage and visible to anyone who opens this page.</p>
+    <button class="link-btn" id="exportBtn">Export All to Excel</button>
+    <div id="recordsTableWrap"><p class="small-note">Loading...</p></div>
+  </div>
+</div>
+
+<script>
+// PASTE the SAME Google Apps Script Web App URL used in the Tool Room form here,
+// so both forms feed into the same Google Sheet. Must end in /exec.
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwpMFczGiZzYreCFW5F9RHhWVHDR4wdXScsiZOM6FoEnMuIwGYVO7Wzriml9YmyNFmO/exec";
+
+const EMPLOYEES = {
+  "K1265": {name:"HANSARY SALES MAGDALAN", dept:"Safety", section:"Safety Department", position:"Safety Officer", joinDate:"23/04/2022"},
+  "K1352": {name:"ALIA A S NUMAN", dept:"Quality", section:"Quality Department", position:"JUNIOR QUALITY ENGINEER", joinDate:"13/10/2024"},
+  "K859": {name:"TIJU MAMMEN VARGHESE", dept:"Warehouse", section:"WAREHOUSE", position:"Warehouse Manager", joinDate:"14/07/2008"},
+  "Z0035": {name:"MANU JOHN", dept:"KPAK", section:"CUPS", position:"Assistant Production Manager", joinDate:"03/03/2025"},
+  "K1213": {name:"SARAVANAN MURUGESAN", dept:"Maintenance", section:"Maintenance", position:"Maintenance Manager", joinDate:"20/11/2019"},
+  "K1064": {name:"MOHAMED SAMIR IBRAHIM ELGENDY", dept:"Production", section:"Production", position:"Production Manager", joinDate:"17/03/2016"},
+  "K988": {name:"SANOJ BENJAMIN KAMBIL", dept:"Tool Room", section:"TOOL ROOM", position:"Tool Room Manager", joinDate:"16/07/2013"},
+  "K1148": {name:"FATEMAH ABDULJALIL SADAYAN", dept:"Administration", section:"Admin", position:"Deputy General Manager - Operation", joinDate:"19/06/2018"},
+  "K1236": {name:"SERAG MOHMED ABOUELHAMD AHMED", dept:"Administration", section:"Admin", position:"Mandoob", joinDate:"30/10/2021"},
+  "K921": {name:"OSAMA BOHNAM FOUAD SHENOUDA", dept:"Administration", section:"Admin", position:"Marketing Manager", joinDate:"11/12/2010"},
+  "K927": {name:"FADEL EZZ EDDIN ASKAR", dept:"Administration", section:"Admin", position:"Mandoob", joinDate:"01/04/2011"},
+  "K1033": {name:"YEDHU K K SATHEESAN", dept:"Information Technology", section:"Information Technology", position:"IT Manager", joinDate:"12/11/2014"},
+  "K1032": {name:"BILAL AHMED SYED", dept:"Purchases", section:"Purchases", position:"PROCUREMENT MANAGER.", joinDate:"13/09/2014"},
+  "K106": {name:"SIMRAN KAPOOR", dept:"Sales", section:"Export Sales", position:"Senior Sales Manager", joinDate:"01/07/2012"},
+  "K1224": {name:"PREMILLA EUSTACE D SOUZA", dept:"Sales", section:"Local Sales", position:"Sales Coordinator", joinDate:"23/08/2020"},
+  "K1306": {name:"KRISHA ANNE BACSA CABANGON", dept:"Sales", section:"Export Sales", position:"Export Sales Supervisor", joinDate:"03/10/2022"},
+  "K1144": {name:"MAHMOUD ADEL MAHMOUD ELSEMARY", dept:"Finance", section:"Finance", position:"Senior Finance Manager", joinDate:"03/03/2018"},
+  "K1056": {name:"MOHAMED MEDHAT MOHAMED TAHA", dept:"Finance", section:"Finance", position:"Senior Accountant", joinDate:"01/11/2015"},
+  "K1251": {name:"JOSEPH VADAKKEVETTIL ANSEL", dept:"Finance", section:"Finance", position:"Accountant", joinDate:"21/02/2022"},
+  "K1370": {name:"KENEE BANTING ESPINOSA", dept:"Finance", section:"Finance", position:"Cashier", joinDate:"18/05/2025"},
+  "K898": {name:"SEBY BABU BABU SEBASTIAN", dept:"Finance", section:"Finance", position:"Chief Accountant", joinDate:"26/04/2010"},
+  "K1296": {name:"CHERYLYN RAMOS CATALAN", dept:"Human Resources", section:"Human Resources", position:"HR Officer", joinDate:"28/08/2022"},
+  "K1340": {name:"SALMAN KHAN NIZAR AHMAD", dept:"Human Resources", section:"Human Resources", position:"Payroll Officer / Time Keeper", joinDate:"23/03/2024"},
+  "K1252": {name:"DHAN BAHADUR MOKTAN", dept:"Production", section:"FOAM", position:"Production labor", joinDate:"23/02/2022"},
+  "K1290": {name:"ANIL KUMAR VASUDEVAN MUKALIL VADAKKETHIL", dept:"Administration", section:"Admin", position:"Driver", joinDate:"26/06/2022"},
+
+};
+
+// Groups the department dropdown by which excel file the employee came from.
+// Note: K1237 and Z0008 appear in both the Foam & Printing and Clear/Injection/Zeema
+// source files, so they're listed in both groups here too, matching the source data.
+const GROUPS = {
+  "PROFESSIONALS": ["K1265","K1352","K859","Z0035","K1213","K1064","K988"],
+  "Admin": ["K1144","K1148","K1236","K921","K927","K1033","K1032","K106","K1224","K1306"],
+  "FINANCE": ["K1056","K1251","K1370","K898"],
+  "HR": ["K1296","K1340"],
+  "Admin - Harris": ["K1252"],
+  "Admin - Driver": ["K1290"],
+
+};
+
+const deptGroupSelect = document.getElementById('deptGroup');
+const empCodeInput = document.getElementById('empCode');
+const empCodeDisplay = document.getElementById('empCodeDisplay');
+const empName = document.getElementById('empName');
+const empDept = document.getElementById('empDept');
+const empSection = document.getElementById('empSection');
+const empPosition = document.getElementById('empPosition');
+const empJoinDate = document.getElementById('empJoinDate');
+const lookupStatus = document.getElementById('lookupStatus');
+
+// Populate the department dropdown from the GROUPS keys
+for(const groupName of Object.keys(GROUPS)){
+  const opt = document.createElement('option');
+  opt.value = groupName;
+  opt.textContent = groupName;
+  deptGroupSelect.appendChild(opt);
+}
+
+deptGroupSelect.addEventListener('change', function(){
+  const group = this.value;
+  empCodeInput.innerHTML = '';
+  clearEmpFields();
+  lookupStatus.textContent = '';
+
+  if(!group){
+    empCodeInput.disabled = true;
+    const opt = document.createElement('option');
+    opt.value = '';
+    opt.textContent = '-- Select department first --';
+    empCodeInput.appendChild(opt);
+    return;
+  }
+
+  empCodeInput.disabled = false;
+  const placeholder = document.createElement('option');
+  placeholder.value = '';
+  placeholder.textContent = '-- Select employee --';
+  empCodeInput.appendChild(placeholder);
+
+  const codes = GROUPS[group].slice().sort((a,b)=> EMPLOYEES[a].name.localeCompare(EMPLOYEES[b].name));
+  for(const code of codes){
+    const opt = document.createElement('option');
+    opt.value = code;
+    opt.textContent = EMPLOYEES[code].name;
+    empCodeInput.appendChild(opt);
+  }
+});
+
+function doLookup(){
+  const raw = empCodeInput.value;
+  if(!raw){
+    clearEmpFields();
+    lookupStatus.textContent = '';
+    return;
+  }
+  const rec = EMPLOYEES[raw];
+  if(rec){
+    empCodeDisplay.value = raw;
+    empName.value = rec.name;
+    empDept.value = rec.dept;
+    empSection.value = rec.section;
+    empPosition.value = rec.position;
+    empJoinDate.value = rec.joinDate;
+    lookupStatus.textContent = '✓ Employee data loaded';
+    lookupStatus.className = 'lookup-status lookup-ok';
+  } else {
+    clearEmpFields();
+    lookupStatus.textContent = '✗ Employee not found';
+    lookupStatus.className = 'lookup-status lookup-err';
+  }
+}
+function clearEmpFields(){
+  empCodeDisplay.value = '';
+  empName.value = '';
+  empDept.value = '';
+  empSection.value = '';
+  empPosition.value = '';
+  empJoinDate.value = '';
+}
+empCodeInput.addEventListener('change', doLookup);
+
+function showMsg(text, ok){
+  const el = document.getElementById('msgBanner');
+  el.textContent = text;
+  el.className = 'msg-banner ' + (ok ? 'msg-ok' : 'msg-err');
+  el.style.display = 'block';
+  window.scrollTo({top:0, behavior:'smooth'});
+  setTimeout(()=>{ el.style.display='none'; }, 5000);
+}
+
+document.getElementById('evalForm').addEventListener('submit', function(e){
+  e.preventDefault();
+
+  const code = empCodeInput.value;
+  if(!EMPLOYEES[code]){
+    showMsg('Please select an employee before submitting.', false);
+    return;
+  }
+
+  const getVal = (name) => {
+    const el = document.querySelector(`input[name="${name}"]:checked`);
+    return el ? el.value : '';
+  };
+
+  const record = {
+    employeeCode: code,
+    employeeName: empName.value,
+    department: empDept.value,
+    section: empSection.value,
+    position: empPosition.value,
+    joinDate: empJoinDate.value,
+    q1_jobKnowledge: getVal('q1'),
+    q1_comments: document.getElementById('q1_comments').value,
+    q2_jobPerformance: getVal('q2'),
+    q2_comments: document.getElementById('q2_comments').value,
+    q3_productivity: getVal('q3'),
+    q3_comments: document.getElementById('q3_comments').value,
+    q4_followInstruction: getVal('q4'),
+    q4_comments: document.getElementById('q4_comments').value,
+    q5_costConsciousness: getVal('q5'),
+    q5_comments: document.getElementById('q5_comments').value,
+    q6_communication: getVal('q6'),
+    q6_comments: document.getElementById('q6_comments').value,
+    q7_teamwork: getVal('q7'),
+    q7_comments: document.getElementById('q7_comments').value,
+    q8_flexibility: getVal('q8'),
+    q8_comments: document.getElementById('q8_comments').value,
+    q9_initiative: getVal('q9'),
+    q9_comments: document.getElementById('q9_comments').value,
+    otherComments: document.getElementById('otherComments').value,
+    evaluatedBy: document.getElementById('evaluatedBy').value,
+    evalDate: document.getElementById('evalDate').value,
+    submittedAt: new Date().toISOString()
+  };
+
+  if(APPS_SCRIPT_URL.indexOf('PASTE_YOUR') === 0){
+    showMsg('This form is not connected to a Google Sheet yet. Ask the administrator to finish setup.', false);
+    return;
+  }
+
+  // Submit via a real hidden <form> POST targeting a hidden iframe.
+  // This is a plain browser form submission (not a fetch/XHR call), so it is
+  // NEVER subject to CORS or JS-level network blocking - the same mechanism
+  // any ordinary HTML <form> on the web has used for 25+ years.
+  const hiddenForm = document.createElement('form');
+  hiddenForm.method = 'POST';
+  hiddenForm.action = APPS_SCRIPT_URL;
+  hiddenForm.target = 'hiddenSubmitFrame';
+  hiddenForm.style.display = 'none';
+
+  Object.keys(record).forEach(function(key){
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = key;
+    input.value = record[key] === undefined || record[key] === null ? '' : String(record[key]);
+    hiddenForm.appendChild(input);
+  });
+
+  document.body.appendChild(hiddenForm);
+  hiddenForm.submit();
+  setTimeout(function(){ hiddenForm.remove(); }, 3000);
+
+  // We can't read the response back from a cross-site iframe target, so we
+  // optimistically confirm submission. Please verify periodically in the
+  // Google Sheet.
+  showMsg('Evaluation submitted. Please verify it appears in the Google Sheet shortly.', true);
+  document.getElementById('evalForm').reset();
+  clearEmpFields();
+  lookupStatus.textContent = '';
+});
+
+// ---- Records modal ----
+const modal = document.getElementById('recordsModal');
+document.getElementById('viewRecordsBtn').addEventListener('click', async ()=>{
+  const pw = prompt('Enter password to view saved evaluations:');
+  if(pw !== 'Kpak@123'){
+    if(pw !== null){ alert('Incorrect password.'); }
+    return;
+  }
+  modal.style.display = 'flex';
+  await loadRecords();
+});
+document.getElementById('closeModalBtn').addEventListener('click', ()=>{
+  modal.style.display = 'none';
+});
+
+let cachedRecords = [];
+
+async function loadRecords(){
+  const wrap = document.getElementById('recordsTableWrap');
+  wrap.innerHTML = '<p class="small-note">Loading...</p>';
+
+  if(APPS_SCRIPT_URL.indexOf('PASTE_YOUR') === 0){
+    wrap.innerHTML = '<p class="small-note" style="color:#c5221f;">Not connected to a Google Sheet yet.</p>';
+    cachedRecords = [];
+    return;
+  }
+
+  try{
+    const res = await fetch(APPS_SCRIPT_URL + '?data=1', { method: 'GET' });
+    const records = await res.json();
+    if(!Array.isArray(records) || records.length === 0){
+      wrap.innerHTML = '<p class="small-note">No evaluations submitted yet.</p>';
+      cachedRecords = [];
+      return;
+    }
+    records.sort((a,b)=> String(b.submittedAt||'').localeCompare(String(a.submittedAt||'')));
+    cachedRecords = records;
+
+    let html = '<table class="records"><thead><tr>' +
+      '<th>Emp #</th><th>Name</th><th>Position</th>' +
+      '<th>I.1</th><th>I.2</th><th>I.3</th><th>I.4</th><th>II.1</th><th>II.2</th><th>II.3</th><th>II.4</th><th>II.5</th>' +
+      '<th>Evaluated By</th><th>Date</th>' +
+      '</tr></thead><tbody>';
+    for(const r of records){
+      html += `<tr>
+        <td>${r.employeeCode||''}</td>
+        <td>${r.employeeName||''}</td>
+        <td>${r.position||''}</td>
+        <td>${r.q1_jobKnowledge||''}</td>
+        <td>${r.q2_jobPerformance||''}</td>
+        <td>${r.q3_productivity||''}</td>
+        <td>${r.q4_followInstruction||''}</td>
+        <td>${r.q5_costConsciousness||''}</td>
+        <td>${r.q6_communication||''}</td>
+        <td>${r.q7_teamwork||''}</td>
+        <td>${r.q8_flexibility||''}</td>
+        <td>${r.q9_initiative||''}</td>
+        <td>${r.evaluatedBy||''}</td>
+        <td>${r.evalDate||''}</td>
+      </tr>`;
+    }
+    html += '</tbody></table>';
+    wrap.innerHTML = html;
+  } catch(err){
+    wrap.innerHTML = '<p class="small-note" style="color:#c5221f;">Error loading records: '+err.message+'</p>';
+  }
+}
+
+document.getElementById('exportBtn').addEventListener('click', ()=>{
+  if(!cachedRecords.length){
+    alert('No records to export yet.');
+    return;
+  }
+  const rows = cachedRecords.map(r => ({
+    'Employee Number': r.employeeCode,
+    'Employee Name': r.employeeName,
+    'Department': r.department,
+    'Section': r.section,
+    'Position Title': r.position,
+    'Date of Joining': r.joinDate,
+    'I.1 Job Knowledge': r.q1_jobKnowledge,
+    'I.1 Comments': r.q1_comments,
+    'I.2 Job Performance and Quality of Work': r.q2_jobPerformance,
+    'I.2 Comments': r.q2_comments,
+    'I.3 Productivity': r.q3_productivity,
+    'I.3 Comments': r.q3_comments,
+    'I.4 Ability to Follow Instruction': r.q4_followInstruction,
+    'I.4 Comments': r.q4_comments,
+    'II.1 Cost Consciousness': r.q5_costConsciousness,
+    'II.1 Comments': r.q5_comments,
+    'II.2 Communication and Customer Focus': r.q6_communication,
+    'II.2 Comments': r.q6_comments,
+    'II.3 Teamwork, Conflict Resolution & Attitude': r.q7_teamwork,
+    'II.3 Comments': r.q7_comments,
+    'II.4 Flexibility and Works Under Pressure': r.q8_flexibility,
+    'II.4 Comments': r.q8_comments,
+    'II.5 Initiative & Motivation': r.q9_initiative,
+    'II.5 Comments': r.q9_comments,
+    'Other Comments': r.otherComments,
+    'Evaluated By': r.evaluatedBy,
+    'Evaluation Date': r.evalDate,
+    'Submitted At': r.submittedAt
+  }));
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Evaluations');
+  XLSX.writeFile(wb, 'Annual_Evaluations_Export.xlsx');
+});
+</script>
+
+</body>
+</html>
